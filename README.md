@@ -1,0 +1,3 @@
+*INSIGHT FLOW* : AI-Powered News Research for Equity Analysts
+
+This project is an AI-powered news research tool designed to help equity research analysts quickly find and understand financial information. It ingests diverse data like news articles, reports, and CSV files using LangChain loaders, then breaks the texts into manageable chunks. These chunks are converted into vector embeddings stored in FAISS for fast, semantic search. When analysts ask questions, relevant chunks are retrieved and fed to OpenAI’s language model, which generates concise, accurate answers with source citations. The entire process is accessible through a simple Streamlit web interface, enabling efficient, cost-effective, and transparent financial research.
