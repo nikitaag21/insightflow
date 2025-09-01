@@ -2,12 +2,9 @@ import os
 import streamlit as st
 import pickle
 import time
-from dotenv import load_dotenv
 
-# Load .env variables if any
-load_dotenv()
 
-st.title("Insight Flow: News Research Tool 📈")
+st.title("Insight Flow: AI-Powered News Research for Equity Analysts 📈")
 st.sidebar.title("News Article URLs")
 
 urls = []
