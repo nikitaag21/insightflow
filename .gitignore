@@ -1,0 +1,8 @@
+# Ignore Python virtual environment
+my-project-env/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.env
+*.venv
