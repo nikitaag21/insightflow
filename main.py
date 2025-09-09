@@ -6,23 +6,22 @@ from langchain.docstore.document import Document
 import requests
 from bs4 import BeautifulSoup
 import os
-from dotenv import load_dotenv
 import shutil
 import google.genai as genai
 
 # ----------------- SETUP -----------------
-load_dotenv()
-api_key = os.getenv("GOOGLE_API_KEY")
+# ✅ Use Streamlit secrets instead of .env
+api_key = st.secrets["general"]["GOOGLE_API_KEY"]
 if not api_key:
-    raise ValueError("❌ GOOGLE_API_KEY not found. Check your .env file.")
+    raise ValueError("❌ GOOGLE_API_KEY not found in Streamlit secrets.")
 os.environ["GOOGLE_API_KEY"] = api_key
-print("✅ GOOGLE_API_KEY loaded successfully")
+print("✅ GOOGLE_API_KEY loaded successfully from Streamlit secrets")
 
 # Create Gemini client
 client = genai.Client(api_key=api_key)
 
 # Embeddings
-embeddings = GoogleGenerativeAIEmbeddings(model="models/embedding-001")
+embeddings = GoogleGenerativeAIEmbeddings(model="models/embedding-001", api_key=api_key)
 
 HEADERS = {
     "User-Agent": (
@@ -46,36 +45,28 @@ def extract_title(soup: BeautifulSoup) -> str:
         return h1.get_text(strip=True)
     return "(no title)"
 
-
 def validate_url(url: str) -> bool:
     return bool(url and url.startswith("http"))
-
 
 def fetch_and_extract(url: str, timeout: int = 12):
     resp = requests.get(url, headers=HEADERS, timeout=timeout)
     resp.raise_for_status()
     soup = BeautifulSoup(resp.text, "html.parser")
 
-    # Remove unwanted tags
     for tag in soup(["script", "style", "noscript", "header", "footer", "aside", "form", "svg"]):
         tag.decompose()
 
     title = extract_title(soup)
 
-    # Try multiple containers
     container = soup.find("article") or soup.find("div", class_="article-content") or soup
     paragraphs = [p.get_text(" ", strip=True) for p in container.find_all("p")]
-    text = "\n".join(p for p in paragraphs if p)
-    text = text.strip()
+    text = "\n".join(p for p in paragraphs if p).strip()
     return title, text
-
 
 def get_index_path() -> str:
     return "faiss_index"
 
-
 def ask_gemini(prompt: str, context: str = "") -> str:
-    """Use Gemini to generate a focused answer."""
     contents = f"Answer the question clearly.\n\nQuestion: {prompt}\n\nContext:\n{context}"
     try:
         response = client.models.generate_content(
@@ -83,7 +74,6 @@ def ask_gemini(prompt: str, context: str = "") -> str:
             contents=contents,
             config={"max_output_tokens": 256}
         )
-        
         return response.candidates[0].content.parts[0].text
     except Exception as e:
         return f"⚠️ Error generating response: {e}"
@@ -109,10 +99,7 @@ if st.sidebar.button("Fetch and Process Data"):
                 st.sidebar.warning(f"⚠️ No text found at {url}")
                 continue
 
-            splitter = RecursiveCharacterTextSplitter(
-                chunk_size=1000,
-                chunk_overlap=100
-            )
+            splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=100)
             chunks = splitter.split_text(text)
 
             for chunk in chunks:
@@ -134,7 +121,7 @@ if st.sidebar.button("Clear Stored Data"):
         st.sidebar.success("🗑️ FAISS index cleared.")
     else:
         st.sidebar.warning("⚠️ No stored FAISS index found.")
-        
+
 k = st.slider("Top results to retrieve (k)", min_value=1, max_value=10, value=3)
 query = st.text_input("🔍 Ask a question about the fetched articles:")
 
@@ -168,7 +155,6 @@ if st.button("Search") and query:
             st.divider()
             context_text += snippet + "\n"
 
-        # ✅ Generate concise answer from context using Gemini
         st.write("### Summary of the results🤖:")
         answer = ask_gemini(query, context_text)
         st.success(answer)
