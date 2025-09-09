@@ -1,0 +1,12 @@
+streamlit==1.38.0
+python-dotenv==1.0.1
+unstructured==0.18.14       # latest version that supports Python < 3.13
+faiss-cpu==1.12.0
+libmagic==1.0
+python-magic==0.4.27
+protobuf==4.25.3
+
+langchain==0.3.7
+langchain-community==0.3.7
+langchain-core==0.3.17
+langchain-google-genai==2.0.5
