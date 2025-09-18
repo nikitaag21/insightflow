@@ -2,6 +2,7 @@ streamlit==1.38.0
 python-dotenv==1.0.1
 unstructured==0.18.14
 faiss-cpu==1.12.0
+libmagic==1.0
 python-magic==0.4.27
 protobuf==4.25.3
 
@@ -9,6 +10,4 @@ langchain==0.3.7
 langchain-community==0.3.7
 langchain-core==0.3.17
 langchain-google-genai==2.0.5
-google-genai==0.1.0
-requests
-beautifulsoup4
+groq==0.5.1
