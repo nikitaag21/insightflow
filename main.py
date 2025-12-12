@@ -10,10 +10,12 @@ import pickle
 import time
 
 # ----------------- LOAD ENVIRONMENT VARIABLES -----------------
-load_dotenv()
-GROQ_API_KEY = os.getenv("GROQ_API_KEY")
+# ----------------- LOAD STREAMLIT SECRETS -----------------
+GROQ_API_KEY = st.secrets.get("GROQ_API_KEY")
+
 if not GROQ_API_KEY:
-    raise ValueError("❌ No GROQ_API_KEY found in environment variables")
+    st.error("❌ GROQ_API_KEY missing in Streamlit Secrets")
+    st.stop()
 
 # ----------------- INITIALIZE GROQ CLIENT -----------------
 groq_client = Groq(api_key=GROQ_API_KEY)
